@@ -1,0 +1,92 @@
+name: build-docker-image
+
+on:
+  workflow_call:
+    inputs:
+      distro_image:
+        required: true
+        type: string
+      distro_tags:
+        required: true
+        type: string
+      distro_platform:
+        required: true
+        type: string
+      distro_version:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
+
+jobs:
+  build_image:
+    name: ${{ inputs.distro_image }}-${{ inputs.distro_version }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Inspec
+        run: |
+          curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec -v 4.24.8
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker images
+        run: |
+          docker build \
+            --no-cache \
+            --rm \
+            --file=${{ ${{ inputs.distro_version }} }}/Dockerfile \
+            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
+            .
+
+      - name: Test Docker images
+        run: |
+          container_id=$(mktemp)
+          sudo docker run \
+            --detach \
+            --privileged \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+            --cgroupns=host \
+            hybridadmin/ansible-${{ inputs.distro_image }}:${{ ${{ inputs.distro_version }} }} > "${container_id}"
+          inspec exec tests/inspec --chef-license accept-silent -t docker://$(cat ${container_id})
+
+      - name: Build/Push Docker to DockerHub
+        run: |
+          docker buildx build \
+            --push \
+            --no-cache \
+            --platform ${{ inputs.distro_platform }} \
+            --file=${{ ${{ inputs.distro_version }} }}/Dockerfile \
+            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
+            ${{ ${{ inputs.distro_version }} }}
+
+  readme:
+    name: Readme mods
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update Repo Readme/Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ inputs.repo_name }}
+          readme-filepath: ./README.md
