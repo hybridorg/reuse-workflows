@@ -1,0 +1,81 @@
+name: molecule-test
+
+on:
+  workflow_call:
+    inputs:
+      distro_image:
+        required: true
+        type: string
+      distro_tag:
+        required: true
+        type: string
+      working_directory:
+        required: true
+        type: string
+      python_version:
+        required: false
+        type: string
+        default: "3.12"
+
+permissions:
+  contents: read # This is required for actions/checkout
+  packages: write # This is required to push images to Github packages
+  id-token: write # This is required for requesting the JWT
+
+jobs:
+  lint:
+    name: run_lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+        with:
+          path: "${{ inputs.working_directory }}"
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ inputs.python_version }}"
+
+      - name: Install test dependencies.
+        run: pip3 install yamllint ansible-lint
+
+      - name: Lint code.
+        run: |
+          yamllint .
+          ansible-lint
+
+  molecule:
+    needs:
+      - run_lint
+    name: run_molecule
+    runs-on: ubuntu-latest
+
+    env:
+      ANSIBLE_CALLBACK_WHITELIST: profile_tasks
+      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_VERBOSITY: 1
+      ANSIBLE_LOAD_CALLBACK_PLUGINS: true
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+        with:
+          path: "${{ inputs.working_directory }}"
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ inputs.python_version }}"
+
+      - name: Install test dependencies.
+        run: |
+          pip3 install ansible==9.9.0 molecule==24.12.0 molecule-plugins[docker] docker
+
+      - name: Run Molecule tests.
+        run: molecule test
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+          MOLECULE_DISTRO: ${{ inputs.distro_image }}
+          MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
