@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        distribution:
+        distro:
           - image: fedora
             version: "40"
             platform: "linux/amd64"

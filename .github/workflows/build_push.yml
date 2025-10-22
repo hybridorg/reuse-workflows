@@ -50,7 +50,7 @@ jobs:
           docker build \
             --no-cache \
             --rm \
-            --file=${{ ${{ inputs.distro_version }} }}/Dockerfile \
+            --file=${{ inputs.distro_version }}/Dockerfile \
             $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
             .
 
@@ -62,7 +62,7 @@ jobs:
             --privileged \
             -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
             --cgroupns=host \
-            hybridadmin/ansible-${{ inputs.distro_image }}:${{ ${{ inputs.distro_version }} }} > "${container_id}"
+            hybridadmin/ansible-${{ inputs.distro_image }}:${{ inputs.distro_version }} > "${container_id}"
           inspec exec tests/inspec --chef-license accept-silent -t docker://$(cat ${container_id})
 
       - name: Build/Push Docker to DockerHub
@@ -71,9 +71,9 @@ jobs:
             --push \
             --no-cache \
             --platform ${{ inputs.distro_platform }} \
-            --file=${{ ${{ inputs.distro_version }} }}/Dockerfile \
+            --file=${{ inputs.distro_version }}/Dockerfile \
             $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
-            ${{ ${{ inputs.distro_version }} }}
+            ${{ inputs.distro_version }}
 
   readme:
     name: Readme mods
