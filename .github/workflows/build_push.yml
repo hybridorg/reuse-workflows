@@ -19,9 +19,14 @@ on:
       repo_name:
         required: true
         type: string
+      readme_only:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build_image:
+    if: ${{ inputs.readme_only == 'false' }}
     name: ${{ inputs.distro_image }}-${{ inputs.distro_version }}
     runs-on: ubuntu-latest
 
