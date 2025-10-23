@@ -16,9 +16,11 @@ on:
       distro_version:
         required: true
         type: string
-      repo_name:
-        required: true
-        type: string
+
+permissions:
+  contents: read # This is required for actions/checkout
+  packages: write # This is required to push images to Github packages
+  id-token: write # This is required for requesting the JWT
 
 jobs:
   build_image:
