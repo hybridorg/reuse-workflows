@@ -74,20 +74,3 @@ jobs:
             --file=${{ inputs.distro_version }}/Dockerfile \
             $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
             ${{ inputs.distro_version }}
-
-  readme:
-    name: Readme mods
-    runs-on: ubuntu-latest
-    needs:
-      - build_image
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Update Repo Readme/Description
-        uses: peter-evans/dockerhub-description@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: ${{ inputs.repo_name }}
-          readme-filepath: ./README.md
