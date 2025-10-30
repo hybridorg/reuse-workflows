@@ -16,6 +16,10 @@ on:
       distro_version:
         required: true
         type: string
+      skip_tests:
+        required: true
+        type: string
+        default: false
 
 permissions:
   contents: read # This is required for actions/checkout
@@ -48,6 +52,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker images
+        if: ${{ inputs.skip_tests }}
         run: |
           docker build \
             --no-cache \
@@ -57,6 +62,7 @@ jobs:
             .
 
       - name: Test Docker images
+        if: ${{ inputs.skip_tests }}
         run: |
           container_id=$(mktemp)
           sudo docker run \
