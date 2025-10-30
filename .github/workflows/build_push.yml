@@ -52,7 +52,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker images
-        if: ${{ inputs.skip_tests }}
+        if: ${{ inputs.skip_tests == true || inputs.skip_tests == 'true' }}
         run: |
           docker build \
             --no-cache \
@@ -62,7 +62,7 @@ jobs:
             .
 
       - name: Test Docker images
-        if: ${{ inputs.skip_tests }}
+        if: ${{ inputs.skip_tests == true || inputs.skip_tests == 'true' }}
         run: |
           container_id=$(mktemp)
           sudo docker run \
