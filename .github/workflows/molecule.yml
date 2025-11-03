@@ -28,22 +28,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: "${{ inputs.working_directory }}"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ inputs.python_version }}"
 
-      - name: Install test dependencies.
-        run: pip3 install yamllint ansible-lint
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
 
-      - name: Lint code.
-        run: |
-          yamllint .
-          ansible-lint
+      - name: ansible-lint
+        uses: ansible/ansible-lint@main
+        with:
+          args: "-c .ansible-lint"
+          setup_python: "false"
+
 
   molecule:
     needs:
@@ -59,23 +61,36 @@ jobs:
 
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: "${{ inputs.working_directory }}"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ inputs.python_version }}"
 
-      - name: Install test dependencies.
-        run: |
-          pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
-
-      - name: Run Molecule tests.
-        run: molecule test
+      - name: Molecule
+        uses: gofrolist/molecule-action@v2
+        with:
+#          molecule_options: --debug --base-config molecule/_shared/base.yml
+          molecule_command: test
+#          molecule_args: --scenario-name ${{ matrix.scenario }}
         env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
+          ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
+
+#      - name: Install test dependencies.
+#        run: |
+#          pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
+
+#      - name: Run Molecule tests.
+#        run: molecule test
+#        env:
+#          PY_COLORS: "1"
+#          ANSIBLE_FORCE_COLOR: "1"
+#          MOLECULE_DISTRO: ${{ inputs.distro_image }}
+#          MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
+
+
