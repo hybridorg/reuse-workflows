@@ -16,8 +16,12 @@ on:
       distro_version:
         required: true
         type: string
+      build_context:
+        required: false
+        type: string
+        default: "."
       skip_tests:
-        required: true
+        required: false
         type: string
         default: false
 
@@ -58,7 +62,7 @@ jobs:
             --no-cache \
             --rm \
             --file=${{ inputs.distro_version }}/Dockerfile \
-            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
+            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/${{ inputs.distro_image }}:$i "; done) \
             .
 
       - name: Test Docker images
@@ -70,7 +74,7 @@ jobs:
             --privileged \
             -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
             --cgroupns=host \
-            hybridadmin/ansible-${{ inputs.distro_image }}:${{ inputs.distro_version }} > "${container_id}"
+            hybridadmin/${{ inputs.distro_image }}:${{ inputs.distro_version }} > "${container_id}"
           inspec exec tests/inspec --chef-license accept-silent -t docker://$(cat ${container_id})
 
       - name: Build/Push Docker to DockerHub
@@ -80,5 +84,5 @@ jobs:
             --no-cache \
             --platform ${{ inputs.distro_platform }} \
             --file=${{ inputs.distro_version }}/Dockerfile \
-            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/ansible-${{ inputs.distro_image }}:$i "; done) \
-            ${{ inputs.distro_version }}
+            $(for i in $(echo ${{ inputs.distro_tags }} | sed "s/,/ /g"); do echo "--tag hybridadmin/${{ inputs.distro_image }}:$i "; done) \
+            ${{ inputs.build_context }}
