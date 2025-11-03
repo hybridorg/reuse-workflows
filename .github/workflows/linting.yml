@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v5
-        with:
-          path: "${{ inputs.working_directory }}"
 
       - name: Set up Python 3.
         uses: actions/setup-python@v6
@@ -37,7 +35,7 @@ jobs:
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
         with:
-          config_file: ${{ inputs.working_directory }}/.yamllint
+          config_file: .yamllint
 
       - name: ansible-lint
         uses: ansible/ansible-lint@main
