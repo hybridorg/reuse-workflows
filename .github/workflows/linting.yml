@@ -3,9 +3,6 @@ name: molecule-test
 on:
   workflow_call:
     inputs:
-      working_directory:
-        required: true
-        type: string
       python_version:
         required: false
         type: string
