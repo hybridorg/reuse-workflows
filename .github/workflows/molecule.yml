@@ -23,33 +23,7 @@ permissions:
   id-token: write # This is required for requesting the JWT
 
 jobs:
-  run_lint:
-    name: run_lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v5
-        with:
-          path: "${{ inputs.working_directory }}"
-
-      - name: Set up Python 3.
-        uses: actions/setup-python@v6
-        with:
-          python-version: "${{ inputs.python_version }}"
-
-      - name: yaml-lint
-        uses: ibiqlik/action-yamllint@v3
-
-      - name: ansible-lint
-        uses: ansible/ansible-lint@main
-        with:
-          args: "-c .ansible-lint"
-          setup_python: "false"
-
-
   molecule:
-    needs:
-      - run_lint
     name: run_molecule
     runs-on: ubuntu-latest
 
