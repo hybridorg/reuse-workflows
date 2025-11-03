@@ -27,11 +27,11 @@ jobs:
     name: run_molecule
     runs-on: ubuntu-latest
 
-    env:
-      ANSIBLE_CALLBACK_WHITELIST: profile_tasks
-      ANSIBLE_STDOUT_CALLBACK: yaml
-      ANSIBLE_VERBOSITY: 1
-      ANSIBLE_LOAD_CALLBACK_PLUGINS: true
+#    env:
+#      ANSIBLE_CALLBACK_WHITELIST: profile_tasks
+#      ANSIBLE_STDOUT_CALLBACK: yaml
+#      ANSIBLE_VERBOSITY: 1
+#      ANSIBLE_LOAD_CALLBACK_PLUGINS: true
 
     steps:
       - name: Check out the codebase.
@@ -47,7 +47,7 @@ jobs:
       - name: Molecule
         uses: gofrolist/molecule-action@v2
         with:
-#          molecule_options: --debug --base-config molecule/_shared/base.yml
+          molecule_options: --debug --base-config molecule/default/molecule.yml
           molecule_command: test
           molecule_working_dir: "${{ inputs.working_directory }}"
 #          molecule_args: --scenario-name ${{ matrix.scenario }}
@@ -55,6 +55,10 @@ jobs:
           ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
+          ANSIBLE_CALLBACK_WHITELIST: profile_tasks
+          ANSIBLE_STDOUT_CALLBACK: yaml
+          ANSIBLE_VERBOSITY: 1
+          ANSIBLE_LOAD_CALLBACK_PLUGINS: true
 
 #      - name: Install test dependencies.
 #        run: |
