@@ -49,6 +49,7 @@ jobs:
         with:
 #          molecule_options: --debug --base-config molecule/_shared/base.yml
           molecule_command: test
+          molecule_working_dir: "${{ inputs.working_directory }}"
 #          molecule_args: --scenario-name ${{ matrix.scenario }}
         env:
           ANSIBLE_FORCE_COLOR: '1'
