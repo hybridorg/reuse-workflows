@@ -31,6 +31,9 @@ jobs:
         with:
           python-version: "${{ inputs.python_version }}"
 
+      - name: list files
+        run: ls -lash
+
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
         with:
