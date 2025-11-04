@@ -52,13 +52,13 @@ jobs:
         uses: gofrolist/molecule-action@v2
         with:
           molecule_options: --debug #--base-config molecule/default/molecule.yml
-          molecule_command: test
+#          molecule_command: test
           molecule_working_dir: "${{ inputs.working_directory }}"
 #          molecule_args: --scenario-name ${{ matrix.scenario }}
         env:
-          ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
+          ANSIBLE_FORCE_COLOR: '1'
           ANSIBLE_CALLBACK_WHITELIST: profile_tasks
           ANSIBLE_STDOUT_CALLBACK: yaml
           ANSIBLE_VERBOSITY: 1
