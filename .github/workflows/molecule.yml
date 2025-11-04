@@ -27,12 +27,6 @@ jobs:
     name: run_molecule
     runs-on: ubuntu-latest
 
-#    env:
-#      ANSIBLE_CALLBACK_WHITELIST: profile_tasks
-#      ANSIBLE_STDOUT_CALLBACK: yaml
-#      ANSIBLE_VERBOSITY: 1
-#      ANSIBLE_LOAD_CALLBACK_PLUGINS: true
-
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v5
@@ -48,32 +42,14 @@ jobs:
         run: |
           pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
 
-      - name: Molecule
-        uses: gofrolist/molecule-action@v2
-        with:
-#          molecule_options: --debug #--base-config molecule/default/molecule.yml
-          molecule_command: test
-          molecule_working_dir: "${{ inputs.working_directory }}"
-          molecule_args: -d docker #--scenario-name ${{ matrix.scenario }}
+      - name: Run Molecule test.
+        run: molecule test
         env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
-          ANSIBLE_FORCE_COLOR: '1'
           ANSIBLE_CALLBACK_WHITELIST: profile_tasks
           ANSIBLE_STDOUT_CALLBACK: yaml
           ANSIBLE_VERBOSITY: 1
           ANSIBLE_LOAD_CALLBACK_PLUGINS: true
-
-#      - name: Install test dependencies.
-#        run: |
-#          pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
-
-#      - name: Run Molecule tests.
-#        run: molecule test
-#        env:
-#          PY_COLORS: "1"
-#          ANSIBLE_FORCE_COLOR: "1"
-#          MOLECULE_DISTRO: ${{ inputs.distro_image }}
-#          MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
-
-
