@@ -51,10 +51,10 @@ jobs:
       - name: Molecule
         uses: gofrolist/molecule-action@v2
         with:
-          molecule_options: --debug #--base-config molecule/default/molecule.yml
-#          molecule_command: test
+#          molecule_options: --debug #--base-config molecule/default/molecule.yml
+          molecule_command: test
           molecule_working_dir: "${{ inputs.working_directory }}"
-#          molecule_args: --scenario-name ${{ matrix.scenario }}
+          molecule_args: -d docker #--scenario-name ${{ matrix.scenario }}
         env:
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
