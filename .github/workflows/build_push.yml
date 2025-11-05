@@ -17,7 +17,7 @@ on:
         required: true
         type: string
       skip_tests:
-        required: true
+        required: false
         type: string
         default: false
 
