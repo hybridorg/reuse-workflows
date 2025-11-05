@@ -40,7 +40,7 @@ jobs:
 
       - name: Install test dependencies.
         run: |
-          pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
+          pip3 install ansible-core molecule molecule-plugins[docker]
 
       - name: Run Molecule test.
         run: |
@@ -52,7 +52,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
-          ANSIBLE_CALLBACK_WHITELIST: profile_tasks
-          ANSIBLE_STDOUT_CALLBACK: yaml
-          ANSIBLE_VERBOSITY: 1
-          ANSIBLE_LOAD_CALLBACK_PLUGINS: true
+#          ANSIBLE_CALLBACK_WHITELIST: profile_tasks
+#          ANSIBLE_STDOUT_CALLBACK: yaml
+#          ANSIBLE_VERBOSITY: 1
+#          ANSIBLE_LOAD_CALLBACK_PLUGINS: true
