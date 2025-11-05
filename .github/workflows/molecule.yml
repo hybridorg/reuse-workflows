@@ -23,59 +23,36 @@ permissions:
   id-token: write # This is required for requesting the JWT
 
 jobs:
-  lint:
-    name: run_lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v4
-        with:
-          path: "${{ inputs.working_directory }}"
-
-      - name: Set up Python 3.
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ inputs.python_version }}"
-
-      - name: Install test dependencies.
-        run: pip3 install yamllint ansible-lint
-
-      - name: Lint code.
-        run: |
-          yamllint .
-          ansible-lint
-
   molecule:
-    needs:
-      - run_lint
     name: run_molecule
     runs-on: ubuntu-latest
 
-    env:
-      ANSIBLE_CALLBACK_WHITELIST: profile_tasks
-      ANSIBLE_STDOUT_CALLBACK: yaml
-      ANSIBLE_VERBOSITY: 1
-      ANSIBLE_LOAD_CALLBACK_PLUGINS: true
-
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: "${{ inputs.working_directory }}"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ inputs.python_version }}"
 
       - name: Install test dependencies.
         run: |
-          pip3 install ansible-core==2.17.10 molecule==25.3.1 molecule-plugins[docker] docker
+          pip3 install ansible-core molecule molecule-plugins[docker]
 
-      - name: Run Molecule tests.
-        run: molecule test
+      - name: Run Molecule test.
+        run: |
+          cd ${{ inputs.working_directory }}
+          ls -lash
+          molecule test
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ inputs.distro_image }}
           MOLECULE_DISTRO_TAG: ${{ inputs.distro_tag }}
+#          ANSIBLE_CALLBACK_WHITELIST: profile_tasks
+#          ANSIBLE_STDOUT_CALLBACK: yaml
+#          ANSIBLE_VERBOSITY: 1
+#          ANSIBLE_LOAD_CALLBACK_PLUGINS: true

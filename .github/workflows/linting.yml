@@ -1,0 +1,41 @@
+name: molecule-test
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        required: false
+        type: string
+        default: "3.12"
+
+permissions:
+  contents: read # This is required for actions/checkout
+  packages: write # This is required to push images to Github packages
+  id-token: write # This is required for requesting the JWT
+
+jobs:
+  run_lint:
+    name: run_lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v6
+        with:
+          python-version: "${{ inputs.python_version }}"
+
+      - name: list files
+        run: ls -lash
+
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .yamllint
+
+      - name: ansible-lint
+        uses: ansible/ansible-lint@main
+        with:
+          args: "-c .ansible-lint"
+          setup_python: "false"
